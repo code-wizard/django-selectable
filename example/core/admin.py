@@ -32,8 +32,17 @@ class FarmAdminForm(forms.ModelForm):
         return super(FarmAdminForm, self).save(*args, **kwargs)
 
 
+# class FarmAdmin(admin.ModelAdmin):
+#     form = FarmAdminForm
+
+class FarmForm(forms.ModelForm):
+    class Meta:
+        model = Farm
+        fields = ['owner']
+        widgets = {'owner': selectable.AutoComboboxSelectWidget(OwnerLookup)}
+
 class FarmAdmin(admin.ModelAdmin):
-    form = FarmAdminForm
+    form = FarmForm
 
 
 class FarmInline(admin.TabularInline):
