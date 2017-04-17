@@ -46,8 +46,8 @@ class AutoCompleteWidget(forms.TextInput, SelectableMediaMixin):
     def update_query_parameters(self, qs_dict):
         self.qs.update(qs_dict)
 
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(AutoCompleteWidget, self).build_attrs(extra_attrs, **kwargs)
+    def build_attrs(self, base_attrs, extra_attrs=None, **kwargs):
+        attrs = super(AutoCompleteWidget, self).build_attrs(base_attrs, extra_attrs, **kwargs)
         url = self.lookup_class.url()
         if self.limit and 'limit' not in self.qs:
             self.qs['limit'] = self.limit
@@ -136,8 +136,8 @@ class AutoCompleteSelectWidget(_BaseSingleSelectWidget):
 
 class AutoComboboxWidget(AutoCompleteWidget, SelectableMediaMixin):
 
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(AutoComboboxWidget, self).build_attrs(extra_attrs, **kwargs)
+    def build_attrs(self, base_attrs, extra_attrs=None, **kwargs):
+        attrs = super(AutoComboboxWidget, self).build_attrs(base_attrs, extra_attrs, **kwargs)
         attrs['data-selectable-type'] = 'combobox'
         return attrs
 
@@ -157,7 +157,7 @@ class LookupMultipleHiddenInput(forms.MultipleHiddenInput):
         lookup = self.lookup_class()
         if value is None:
             value = []
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+        final_attrs = self.build_attrs(self.attrs, attrs, type=self.input_type, name=name)
         id_ = final_attrs.get('id', None)
         inputs = []
         model = getattr(self.lookup_class, 'model', None)
@@ -177,8 +177,8 @@ class LookupMultipleHiddenInput(forms.MultipleHiddenInput):
             inputs.append('<input%s />' % flatatt(input_attrs))
         return mark_safe('\n'.join(inputs))
 
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(LookupMultipleHiddenInput, self).build_attrs(extra_attrs, **kwargs)
+    def build_attrs(self, base_attrs, extra_attrs=None, **kwargs):
+        attrs = super(LookupMultipleHiddenInput, self).build_attrs(base_attrs, extra_attrs, **kwargs)
         attrs['data-selectable-type'] = 'hidden-multiple'
         return attrs
 
@@ -218,8 +218,8 @@ class _BaseMultipleSelectWidget(SelectableMultiWidget, SelectableMediaMixin):
             value = self.get_compatible_postdata(data, name)
         return value
 
-    def build_attrs(self, extra_attrs=None, **kwargs):
-        attrs = super(_BaseMultipleSelectWidget, self).build_attrs(extra_attrs, **kwargs)
+    def build_attrs(self, base_attrs, extra_attrs=None, **kwargs):
+        attrs = super(_BaseMultipleSelectWidget, self).build_attrs(base_attrs, extra_attrs, **kwargs)
         if 'required' in attrs:
             attrs.pop('required')
         return attrs
