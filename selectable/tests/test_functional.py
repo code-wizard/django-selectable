@@ -8,7 +8,7 @@ from django import forms
 from ..forms import AutoCompleteSelectField, AutoCompleteSelectMultipleField
 from ..forms import AutoCompleteSelectWidget, AutoComboboxSelectWidget
 from . import ManyThing, OtherThing, ThingLookup
-from .base import BaseSelectableTestCase, parsed_inputs
+from .base import BaseSelectableTestCase
 
 
 __all__ = (
@@ -78,26 +78,50 @@ class FuncAutoCompleteSelectTestCase(BaseSelectableTestCase):
         form = OtherThingForm(data=data)
         self.assertFalse(form.is_valid(), 'Form should not be valid')
         rendered_form = form.as_p()
-        inputs = parsed_inputs(rendered_form)
         # Selected text should be populated
-        thing_0 = inputs['thing_0'][0]
-        self.assertEqual(thing_0.attributes['value'].value, self.test_thing.name)
+        self.assertInHTML(
+            '''
+            <input data-selectable-allow-new="false" data-selectable-type="text"
+                data-selectable-url="/selectable-tests/selectable-thinglookup/"
+                id="id_thing_0" name="thing_0" type="text" value="{}" {} />
+            '''.format(self.test_thing.name,
+                       'required' if hasattr(form, 'use_required_attribute') else ''),
+            rendered_form
+        )
         # Selected pk should be populated
-        thing_1 = inputs['thing_1'][0]
-        self.assertEqual(int(thing_1.attributes['value'].value), self.test_thing.pk)
+        self.assertInHTML(
+            '''
+            <input data-selectable-type="hidden" name="thing_1" id="id_thing_1"
+                type="hidden" value="{}" {} />
+            '''.format(self.test_thing.pk,
+                       'required' if hasattr(form, 'use_required_attribute') else ''),
+            rendered_form,
+        )
 
     def test_populate_from_model(self):
         "Populate from existing model."
         other_thing = OtherThing.objects.create(thing=self.test_thing, name='a')
         form = OtherThingForm(instance=other_thing)
         rendered_form = form.as_p()
-        inputs = parsed_inputs(rendered_form)
         # Selected text should be populated
-        thing_0 = inputs['thing_0'][0]
-        self.assertEqual(thing_0.attributes['value'].value, self.test_thing.name)
+        self.assertInHTML(
+            '''
+            <input data-selectable-allow-new="false" data-selectable-type="text"
+                data-selectable-url="/selectable-tests/selectable-thinglookup/"
+                id="id_thing_0" name="thing_0" type="text" value="{}" {} />
+            '''.format(self.test_thing.name,
+                       'required' if hasattr(form, 'use_required_attribute') else ''),
+            rendered_form
+        )
         # Selected pk should be populated
-        thing_1 = inputs['thing_1'][0]
-        self.assertEqual(int(thing_1.attributes['value'].value), self.test_thing.pk)
+        self.assertInHTML(
+            '''
+            <input data-selectable-type="hidden" name="thing_1" id="id_thing_1"
+                type="hidden" value="{}" {} />
+            '''.format(self.test_thing.pk,
+                       'required' if hasattr(form, 'use_required_attribute') else ''),
+            rendered_form
+        )
 
 
 class SelectWidgetForm(forms.ModelForm):
